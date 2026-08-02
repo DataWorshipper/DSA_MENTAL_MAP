@@ -1,5 +1,9 @@
 # KV Caching
 
+## References
+
+- [KV Caching Explained (Hugging Face)](https://huggingface.co/blog/not-lain/kv-caching)
+ 
 ## Intuition
 
 Suppose the prompt is
