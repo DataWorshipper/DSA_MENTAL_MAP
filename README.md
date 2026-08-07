@@ -39,7 +39,7 @@ Focus on:
 ## Object-Oriented Programming (OOP)
 
 **Resource:**
-
+-https://drive.google.com/file/d/1kVpWEamxeUE8HP277NMIP7a3o_QDLQgI/view
 - Any one good YouTube playlist (CodeHelp / Neso Academy / Apna College)
 
 Topics:
