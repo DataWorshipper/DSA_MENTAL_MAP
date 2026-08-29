@@ -86,6 +86,11 @@ Topics:
 ** Resources**
 -https://brainstellar.com/puzzles
 
+## ML Resources for Revision:
+** Resources**
+-http://14.139.161.31/OddSem-0822-1122/Hands-On_Machine_Learning_with_Scikit-Learn-Keras-and-TensorFlow-2nd-Edition-Aurelien-Geron.pdf
+(good for revision) ,all things arent there tho, so use gpt or campus x for those 
+
 ## Rule
 
 - Don't resource-hop.
