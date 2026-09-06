@@ -1,0 +1,195 @@
+OOPS-REVISION
+Basic class ,objects , construtors uk like default and parameterized constructors
+
+object initialization-
+Student p(----)(within brackets pass the values of data members)
+p.age in this case
+using new
+Student *p=new Student(---) (new always return a pointer)
+p->age in the 2nd case 
+
+Getter and Setter Methods->just to get and set the private data members
+why not make  private members public then , the ans is setter methods allow controlled modification , say for ex ur bank acc has like 500rupees , obv u can withdraw money from 0 to 500 , so there shudnt be a mistake as to like using a setter method to make ur bank balance or withdraw amt as more than ur current bank balance
+
+ int p=10;
+cout<<&p<<endl;
+int *x=&p;
+cout<<*x<<endl;
+& gives address , *x is a pointer so must contain address
+
+*->dereferencing operator
+
+SHALLOW COPY:
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+class Student {
+public:
+    int *age;
+
+    Student(int a) {
+        age = new int(a);
+    }
+
+    
+};
+int main() {
+Student s1(20);
+Student s2 = s1; //default copy constructor and by default its shallow copy
+*(s2.age) = 50;
+
+cout << *(s1.age);  
+}  for dynamically allocated objects/data this is the problem , if statically allocated , then no issue , cause addresses aren't being shared
+since in shallow copy , the object data members are copied , so if 2 objects have same address  , and one tries to  update the value at that address, all other objects which copied from it , will have the same value.
+DEEP COPY
+#include <bits/stdc++.h>
+#include <iostream>
+using namespace std;
+class Student {
+public:
+    int *age;
+
+    Student(int a) {
+        
+        age = new int(a);
+    }
+    Student(Student &s)
+    {
+        age=new int(*(s.age));
+    }
+
+    
+};
+int main() {
+Student s1(20);
+Student s2 = s1; //our own  copy constructor and its deep copy
+*(s2.age) = 50;
+
+cout << *(s1.age);  
+} 
+
+We defined our own copy constructor and  *(s.age) value so we are doing new int(20) so give me a new memory intilized to 20 so yeah
+
+Why Student &s(pass by reference and not pass by value) , in pass by value we need to copy to value and modify on that copy right , but in the copy constructor im defining my copy constructor , so how will it copy(circular problem) ,pass by reference  pass &x (Example)  and so basically u are passing the address , and modifying that wud modify the actual x
+
+pass by value and pass by reference uk 
+this keyword refers to the current object
+class Student {
+    int age;
+
+public:
+    void setAge(int age) {
+        this->age(age belonging to curr object) = age(parameter);
+
+    }
+};
+ age is a data member , but if ur lazy ass cant make unique names for paramters in function use this (literally)
+this ->a pointer to the current object 
+
+Scope Resolution Operators(C++ Specific)
+
+struct vs class-> basically same diff is in default access modifiers , class has private , struct  default access modifier is public 
+struct can have fucntions ,overloading and all the stuff ok
+size of struct/class , not always equal to sum of data types , alignment and padding is done based on the largestdatatypenormally
+Operator Overloading 
+basically arithmetical,logical relational operators can be overloaded ok , why its needed ofc like say therea re 2 points instead of doing p1.add(p2) we can overload + to do p1+p2 ,so yeah we can write a function Point operator+(Point &a,Point &b) and define add and return (based on ur implementation)
+
+Forward Declaration-> i have defined a classhere , iwill fill in later
+friend function/class easy just telling that another friend or class can access  my private datamemebrs 
+external functions can be friend functions
+functiosn of another class cna be friend fucntions
+just use friend return_type CLASS::func_name(...)
+{
+
+}
+easy ,sometimes forward declaration is imp to tell  the compiler that a particular thing exists
+Destructors;
+clean up dynamically allocated memory 
+when an object goes out of scope
+Desctructios dont have parameters so cant be overloaded
+
+If you mean default inheritance access, it depends on whether you're using class or struct:
+
+class B : A {};
+
+➡️ private inheritance by default
+
+struct B : A {};
+
+➡️ public inheritance by default
+types of inheritance 
+multiple vs hierarchical(i always forget)
+
+multiple (multiple bases)
+hierarchical (hieracrchy always points downwards so maybe use that to remember)
+constructors in inheritance uk , say the base class constructor needs a  parameter, then u need to pass  the parameter in the derived class's constructoes
+upcasting ->implicit ,child to parent
+Derived d;
+Base *b=&d
+ since d has the base component this works
+Downcastig
+parent to child
+Derived d
+Base *b=&d
+
+
+Dog d;
+Animal* p = &d;
+Dog* q = (Dog*)p;    // ✓ valid downcast
+
+Animal a;
+Animal* p = &a;
+Dog* q = (Dog*)p;    // ✓ compiles, but unsafe
+
+
+Polymorphism
+compile time and runtime polymorphism
+compile time is easy ->function overloading and operator overloading 
+(static binding or early binding) 
+
+Abstract Class->atleast 1 pure virtual func
+virtual func ->lets child classes override  thr function with virtual in it
+pure virtual func-> virtual void sound()=0;
+child classes ->if they dont provide implementation-abstract classes
+if they do they must override(ofc , and hence can be instantiated as objects)
+u will get compiler error , if u instantiate an abstract class
+function overriding is  runtime polymorphism
+#include <bits/stdc++.h>
+using namespace std;
+
+class Base {
+public:
+
+    // Virtual function
+    virtual void display() {
+        cout << "Base class function";
+    }
+};
+
+class Derived : public Base {
+public:
+
+    // Overriding the base class function
+    void display() override {
+        cout << "Derived class function";
+    }
+};
+
+int main() {
+    
+    // Creating a pointer of type Base
+    Base* basePtr;
+    
+    // Creating an object of Derived class
+    Derived derivedObj;
+
+    // Pointing base class pointer to 
+    // derived class object
+    basePtr = &derivedObj;
+    
+    // Calling the display function 
+    // using base class pointer
+    basePtr->display();
+    return 0;
+} example of function  overrideing 
+output will be Derived Class Function
