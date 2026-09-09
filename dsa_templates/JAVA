@@ -1,0 +1,69 @@
+Convert String to Integer
+
+1.Integer.parseInt("5") --> int
+2.Integer.valueOf("5") --> Integer
+
+
+Convert Integer to String
+
+1.Integer.toString(43) --> String
+2.String.valueOf(5) --> String
+
+1. List<Integer> arr = new ArrayList<>();
+   List<Integer> arr = new ArrayList<>(Array.asList([1,2,3,4]));
+
+    arr.add(5)
+    arr.get(0) // 0 is index
+    arr.set(1 , 3) // at index 1 replace element with 3
+    arr.size()
+    arr.isEmpty() // checks if arr is empty 
+
+    Sorting a ArrayList
+    Collections.sort(arr) // ascending
+    Collections.sort(arr , Collections.reversedOrder())
+    Collections.sort(arr , (a , b) -> a.compareTo(b)) 
+
+    arr.remove(int index) // remove element at index 
+    arr.remove(Integer.valueOf(el)) // remove element
+    arr.add(int index , Object O)
+    arr.contains(Object O)
+    arr.indexOf(Object O)
+
+    arr.remove(arr.indexOf("5"))
+    
+
+2. Map<String ,Integer> map = new HashMap<>();
+
+    map.put("ABC" , 12345)
+    map.get("ABC")
+    map.getOrDefault("ABC" , 0)
+    map.containsKey("ABC")
+    map.remove("ABC")
+    
+
+  	used when counting freq
+    map.put( key , map.getOrDefault(key , 0 ) + 1)
+
+    for(String key : map.keySet())
+    for(Integer value : map.values())
+
+    for(Map.Entry<String , Integer> entry: map.entrySet())
+
+  3. Set<Integer> visited = new HashSet<>();
+
+    set.add(5)  // returns True if successfully added False otherwise(if element already in set)
+    set.contains(5)
+    set.remove(5) 
+
+    
+
+    
+      
+    
+
+
+    
+
+    
+  
+
