@@ -1,0 +1,109 @@
+SO BST , Binary search tree te beshi kichu nei tbh
+
+ A few things i found out:
+ say you have to check in a tree  is a node's subtree a BST
+
+LEETCODE 1373
+ # Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def maxSumBST(self, root: Optional[TreeNode]) -> int:
+        idx={}
+        counter=0
+        def dfs1(node:Optional[TreeNode]):
+            nonlocal counter
+            if not node:
+                return
+            
+            idx[node]=counter
+            counter+=1
+            dfs1(node.left)
+            dfs1(node.right)
+        
+        dfs1(root)
+        INF=float("inf")
+        min_arr=[INF]*counter
+        max_arr=[-INF]*counter
+        sum_arr=[0]*counter 
+        is_bst=[True]*counter
+        def stats(node:Optional[TreeNode]):
+            if node is None:
+                return
+            
+            min_arr[idx[node]]=node.val
+            max_arr[idx[node]]=node.val
+            sum_arr[idx[node]]=node.val
+            if node.left is not None:
+                stats(node.left)
+                min_arr[idx[node]]=min(min_arr[idx[node]],min_arr[idx[node.left]])
+                max_arr[idx[node]]=max(max_arr[idx[node]],max_arr[idx[node.left]])
+                sum_arr[idx[node]]+=sum_arr[idx[node.left]]
+            if node.right is not None:
+                stats(node.right)
+                min_arr[idx[node]]=min(min_arr[idx[node]],min_arr[idx[node.right]])
+                max_arr[idx[node]]=max(max_arr[idx[node]],max_arr[idx[node.right]])
+                sum_arr[idx[node]]+=sum_arr[idx[node.right]]
+        stats(root)
+        def dfs2(node:Optional[TreeNode]):
+            if node is None:
+                return True
+            a_l=True
+            a_r=True
+
+            left_bool=True
+            right_bool=True
+            if node.left is not None:
+                a_l=node.val>max_arr[idx[node.left]]
+                left_bool=dfs2(node.left)
+            if node.right is not None:
+                a_r=node.val<min_arr[idx[node.right]]
+                right_bool=dfs2(node.right)
+            node_bool=a_l and a_r
+            ans=node_bool and left_bool and right_bool
+            is_bst[idx[node]]=ans
+            return ans
+        dfs2(root)
+        mn=-INF
+        def dfs3(node):
+            nonlocal mn
+            if node is None:
+                return
+            if is_bst[idx[node]]:
+                mn=max(mn,sum_arr[idx[node]])
+            
+            if node.left:
+                dfs3(node.left)
+            if node.right:
+                dfs3(node.right)
+        
+        dfs3(root)
+        return max(0,mn)
+            
+
+Basically , find min/max of each subtree and say at a node we  have  checks
+node>max_value at node.left's subtree
+node<min_value at node.right's subtree
+
+and ofc the right and left subtree must itself be A BST
+so do and and get answer for a node 
+tarpor to ja debe tai korbi ,for example , sum of subtree chaile ta dibi , and what not
+
+
+
+            
+
+            
+
+        
+
+            
+
+            
+
+
+
+        
