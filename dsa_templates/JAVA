@@ -55,6 +55,49 @@ Convert Integer to String
     set.contains(5)
     set.remove(5) 
 
+   4. 
+      Deque<Integer> queue = new ArrayDeque<>();
+      visited[startNode] = true
+      queue.offerLast(startNode)
+
+      while(!queue.isEmpty()){
+         int curr = queue.pollFirst();
+
+         for(int neighbour:adj.get(curr)){
+            if(!visited[neighbour]){
+               visited[neighbour] = True
+               queue.offerLast(neighbour)
+         }
+      }
+   }
+
+5. Next Greater Element
+
+   Deque<Integer? stack = new ArrayDeque<>():
+
+   int n = arr.length;
+   for(int i = n - 1 ; i >= 0 ; i --){
+
+      curr = stack[i]
+      while(!stack.isEmpty() && curr >= stack.peek()){
+
+            stack.pop();
+      }
+
+      if(stack.isEmpty()){
+         result[i] = -1;
+      }
+      else{
+         result[i] = stack.peek();
+      }
+
+      stack.push(current);
+
+   }
+
+   return result;
+
+
     
 
     
