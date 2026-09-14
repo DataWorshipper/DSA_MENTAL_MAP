@@ -1,0 +1,326 @@
+Why RAG -> llms have parametric knowledge stored in weights , but  that might be outdated, so yeah instead of retraining ur llm multiple times , we use RAG
+
+RAG:
+BASICS-> basic chunking ,splitting ,storing it in vector DB-> is the RAG that ppl mostly know of
+
+Earlier versions of RAG (before langchain)
+was pass query through encoder and all the documents that one has through a decoder , cross attention will implicitly tell me how much attention is the query  giving a particular document 
+
+Rag -post langchain
+we have separate components like document loaders, text splitters , chunking and vector db stuff
+ Document Loaders->simple stuff ,say u have 500 docs ,  a document  loader like say PyPDFLoader , and other loaders , will basically 
+make a Document Object with doc content and metadata
+
+Text Splitters-> to split text into chunks  and   treat them as mini docs , so when a query comes in , it can find importance of query with each chunk , what if i dont split  and not create chunks-> i'll show u with an example
+ DOC1-[France,Paris,Germany]
+ we are gonna chunk it say after chunking
+C1-[France]
+C2-[PARIS]
+C3-[Germany]
+now when an embedding model will convert them to embeddings , then every chunk gets its own embedding vector in the embeddign dimension ok,
+so each chunk contributes an individual signal most of the times
+now say we dont chunk
+C1=DOC1
+then embedding model wud have to embed France,Paris,Germany all in the same embedding space , as a joint signal , rather than highlighting the individual  signals,so  individual contribution and meaning may get lost
+
+Length based Splittign->easy  simplest, chunk overlap used to make the chunks connected  and carry some context from previous  chunks 
+
+TextStructureBased split->recursive character text splitter-> basically text inherently  has  say structure and hierarchy:
+Paragraphs
+Sentences
+Wordss
+Character
+ so first we are gonna look for paragraphs less than context window , then if not , then look for sentences and stuff , thats the plan
+example:
+consider chunk size to be 10 and 
+My name is Abhiraj(18)
+I am a boy(15)
+
+My name is bla bla(18)
+I am a girl(15)
+
+first split by para
+so  firstone is first para itnhas 33 toekns ,split on sentence now 18 and 15 , split based on words again ok , then merge if less than 10
+
+U can use recursive character stuff with diff seperators , say for code , seperators can be class,functions bla bla
+Semantic Splitter-> lets say there is one paragraph , but it has 2-3 sentences of different semantics,so ideally they should be separated so yeah , can be done by usig embeddig mode and calc cosine similarity between 2 lines and stuff ,so yeah computationally expensive 
+
+for codes->best to use structure based split
+
+Vector Stores->easy uk basics, embedding model is used and  vectors are stored bla bla , similarity search and top k
+example-chroma ,pinecone,FAISS and stuff like that
+
+Retriever-> basically retrieves stuff one is avector store retriever , retrieves queries from vector stores others include Wikipedia Retriever 
+
+MMR(Maximal Marginal Relevance) Retriever->Basically its like its gonna fetch the  top k docs , but they shall be diverse ,different from each other but still relevant 
+
+Multi Query Retriever:
+Sometiems query might be ambigious  ,so retriever generates queries similar to our query and ask those queries to vectorstore
+
+CRAG -dekhenish ,i already know it , so not writing
+
+RAG DEEP DIVE
+
+MMR-> exact alog is very easy
+
+first u choose the document say D1 which has highest similarity score
+
+ now for D2 TO DN
+selected={D1)
+sim(q,D2)
+argmax sim(D2,Dj) where j belongs to  documents in selected pool
+MMR=lambda*(sim(q,D2)-(1-lambda)*(argmax sim(D2,Dj))
+ same we do for D3 ,D4 ...
+
+You first choose:
+
+$$ D_1=\arg\max_D Sim(q,D) $$
+
+because nothing has been selected yet.
+
+Then for every remaining candidate, say \(D_2\):
+
+1. Relevance to query
+$$ Sim(q,D_2) $$
+2. Redundancy with selected documents
+
+For every \(D_j\) where \(D_j\in S\):
+
+$$ Sim(D_2,D_j) $$
+
+Take the maximum:
+
+$$ \max_{D_j\in S} Sim(D_2,D_j) $$
+
+This asks:
+
+"How similar is D2 to its most similar already-selected document?"
+
+3. Combine them
+$$ \boxed{ MMR(D_2) = \lambda Sim(q,D_2) - (1-\lambda) \max_{D_j\in S}Sim(D_2,D_j) } $$
+
+Then do the same for every candidate remaining in the candidate pool.
+
+D2 → MMR = 0.42
+D3 → MMR = 0.67
+D4 → MMR = 0.31
+D5 → MMR = 0.59
+
+Choose:
+
+$$ D_3=\arg\max MMR(D) $$
+
+Now:
+
+$$ S=\{D_1,D_3\} $$
+
+Then you repeat the exact same process for the remaining candidates, but now redundancy is calculated against both \(D_1\) and \(D_3\).
+
+So your mental algorithm is:
+
+D1 = most relevant document
+S = {D1}
+
+while |S| < k:
+
+    for each candidate D not in S:
+
+        relevance  = sim(q, D)
+
+        redundancy = max(
+            sim(D, Dj)
+            for Dj in S
+        )
+
+        MMR(D) =
+            λ × relevance
+            - (1-λ) × redundancy
+
+    choose D with highest MMR
+    add D to S
+
+That's MMR. You've got it.(from chatgpt)
+
+EVALS
+LLM EVALS->vibe testing(example) ->casually using 5 to 10 prompts , and if I feel answers are good it succeeds,good for personal projects
+
+Software Testing ->deterministic tests,benchmark is correctness
+llm evals->probabilistic, benchmark can be based on business use cases and normal domain wise checks
+
+LLM EVALS are basically unit tests but now  they have become complicated , since the output is more probabilistic ,and llm outputs are subjective 
+LLM EVALS aren't just metrics ,but the entire testing setup
+
+Model EVals->evaluation of a llm->(example ,reasoning ability, coding ability , ...)
+application evals->evaluation of llm application(more complex)
+
+
+Application Eval-> the How
+1.Define what to evaluate
+2.Define what success means to you or the company
+3.Build an eval dataset (simple example wud be application output-> category of output(like simple classification)(this is normally man made , called a golden dataset)
+4. Let the application evaluate on this dataset
+5.Analyze the result
+6.Either improve or if it looks fine, then deploy
+
+Multiple failure points for say llm based applications
+say for example a rag chatbot
+failure modes cud be retriever and generator
+
+
+Testing independenty is one thing somethigns things work nicely on its own , but in conjunction with the system breaks apart
+
+Who is evaluating the golden dataset?
+1.Code(simple code and needs exact matcj, normal unit tests)
+2.Human
+3.LLM as a Judge
+
+Say if i want to test the retriever of a RAG
+
+Whats success criteria for retriever?
+
+Metric called Recall@k
+Out of all correct documents , how many actual correct docs did the retriever retrieve
+
+Evaluate the retriever-only component on the golden dataset and thats called programmatic  approach,coz no human and no llm used
+
+
+For complex applications, we develop a rubric to judge  the application output , and say the chatbot is  giving us text output, for more nuanced outputs , humans are needed
+
+So humans judges the chatbot answer
+
+
+ 
+LLM as a judge -> min cost like a  programmatic approach , but accuracy and ability to give nuanced outputs like a human
+
+basically u are using llm to judge ur output based on a certain rubric , but how do you know that your rubric is well defined and stuff , u can bring in 1 SME(subject matter expert) and  grade the answers of the chatbot, and use a llm following a certain rubric to judge the same  answers, try to find how similar they are ok , thats kind of an indication that ur llm is as good as a human judge , some advanced methods include where you can fine tune the llm as well based on the dataset of chatbot answers and qsns comparing with human judges
+
+
+
+Offline and Online Evals->Offline evals mean before a system is deployed , u are testing ur system,Online evals is that when real world traffic comes in , u are monitoring mainly business metrics 
+
+
+Now finally RAG EVALS
+
+How to evaluate your RAG app
+
+Setup multiple evals
+
+RetrieverEVal->popular metrics include recall/precision@K
+
+Generator Eval->faithfulness->very popular metric,answer relevance,citation accuracy
+
+Faithfulness:
+The Faithfulness metric measures how factually consistent a response is with the retrieved context. It ranges from 0 to 1, with higher scores indicating better consistency.
+
+A response is considered faithful if all its claims can be supported by the retrieved context.
+
+To calculate this: 1. Identify all the claims in the response. 2. Check each claim to see if it can be inferred from the retrieved context. 3. Compute the faithfulness score using the formula:
+https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/faithfulness/-read this for more knowledge
+
+Note for Faithfulness , we are asking the llm did you hallucinate or did you really use knowledge from the retrieved docs
+	​
+Answer Relevance->means how pertinent is the answer to the question itself
+The evaluation metric, Answer Relevancy, focuses on assessing how pertinent the generated answer is to the given prompt. A lower score is assigned to answers that are incomplete or contain redundant information and higher scores indicate better relevancy. This metric is computed using the question, the context and the answer.
+
+Citation Accuracy-> normally in rag , u give citations , then just match the citations
+Entire Pipeline Eval-RAG Triad
+
+                 QUESTION
+                /        \
+               /          \
+              ↓            ↓
+      Context Relevance   Answer Relevance
+             ↓                ↑
+             └──→ CONTEXT ──→ ANSWER
+                       ↑
+                       │
+                  Faithfulness
+
+
+1. Context Relevance
+
+Question → Retrieved Context
+
+"Did the retriever retrieve useful information for this question?"
+
+Example:
+
+Question:
+
+"What is Apple's revenue in 2025?"
+
+Retrieved chunks:
+
+Chunk 1: Apple's 2025 revenue      ✅
+Chunk 2: Apple's iPhone sales       ✅
+Chunk 3: History of Apple           ❌
+Chunk 4: Apple's CEO                ❌
+
+
+2. Faithfulness
+
+Context → Answer
+
+"Are the claims in the generated answer supported by the retrieved context?"
+
+Context:
+
+"Apple's 2025 revenue was $X billion."
+
+Answer:
+
+"Apple's 2025 revenue was $X billion and grew 15%."
+
+If the context doesn't say anything about 15% growth:
+
+Faithfulness ↓
+
+This primarily evaluates your generator's grounding.
+
+3. Answer Relevance
+
+Question → Answer
+
+"Does the generated answer actually answer the user's question?"
+
+Question:
+
+"What are the benefits of RAG?"
+
+Answer:
+
+"RAG stands for Retrieval-Augmented Generation. It was introduced as a technique for combining retrieval and generation."
+
+That's related, but it doesn't really answer what the benefits are.
+
+→ Low answer relevance.
+
+Ofc additional metrics are there like Safety-> such that jailbreak prompts cant break it
+
+Other metrics are ofc token count , latency and stuff like that
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
