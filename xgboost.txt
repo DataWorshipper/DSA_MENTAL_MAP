@@ -1,0 +1,136 @@
+XGBOOST:
+
+Extreme Gradient Boosting
+
+Why gradient boosting was chosen:
+
+Flexibility-> Gradient Boosting works with any loss function
+
+
+Xgboost is a library not just an algo
+Xgboost will work on any OS, can be used in multiple programming languages
+
+Why xgboost is faster , like less training time is lesser than others?
+
+Software Features:
+
+Parallel Processing->But gradient boosting is a sequential process , so how can a sequential process be made parallel. The idea is that the boosting processs isn't magically done in parallel , the individual model building(decision tree building thats done in paralle)
+
+for ex a dataset 
+age|marks|placement is dataset 
+
+we can make 3 or more decision trees in parallel and calculate which one  gives the max INFORMATION gain or variance reduction , thats chosen , this is done in parallel
+
+Optimized Data Structures:XGBOOST stores information column wise, then for parallel processing , we can take a column , split points and  make the decision trees
+
+Out of Core Computing-> say ur ram has 8 GB,but dataset is 10 GB, u chunk ur big dataset , say 5 chunks of 2 GB each , and feed it to training , and ofc training is resumed from the last chunk
+
+Distributed Computing->basically u can use multiple devices to train dataset 
+
+
+Performance:
+Regularized Learning: In XGBOOST performance increases due to regularization, so the loss function is loss function of the gradient boost , plus some regularization terms which penalizes  the number of leaves in a tree(to make sure trees aren't overcomplicated) and ofc large leaf weights 
+
+Sparsity Aware Split Finding->xgboost can handle missing values
+
+e.g
+f1
+4
+5
+6
+-
+8
+9
+  what xgboost does is take themissing points and it either puts it to the right node or left node, in that way it finds the tree which will give max IG or Variance Reduction 
+
+Approximate Tree Learning->  normally tree construction is done by exact greedy search , we are trying out all values , and then making trees and finding best tree which maximizes IG/VR, so we binn the feature column ,like say
+1-5|6-10|11-15|
+we do binning using quantiles
+why use quantiles
+using quantile based binning , u make more accurate bins by  considering distribution of data,like say 0-10(frequecne is less) , so make more bins, for larger frequency , make less number of bins
+
+Tree Pruning-> post pruning and pre-pruning ,obv dont let the entire tree grow
+
+XGBOOST REGRESSION
+
+almost same as gradient boost , but the way a decision tree/stump is made is very different
+We dont use gini/entropy here but use something called similarity score
+
+SS= (sum of residual)^2\(number of residuals+lambda)
+lambda=regularization parameter
+
+
+then gain wud be SS(LEFT)+SS(RIGHT)-SS(ROOT)
+ maximize this and find the tree  
+
+XGBOOST CLASSIFICATION
+base estimator->mean for regression
+for classification its log(odds)
+log(p/(1-p)
+p->prob of + class
+
+f1	placed	pred_stage_1	residual=(placed-pred_stage_1)	
+	0	0.6
+5.7	1	0.6
+6.25	0
+7.1	1
+8.15	1
+9.6	1
+
+convert log(odds) to probability-> p=(e^(log(odds))/(1+e^log(odds))
+ 
+Now error calculation 
+
+
+now tree construction
+Similarity Score = (Sum of (p_i - y_i))^2 / (Sum of p_i(1 - p_i) + lambda)
+
+output value of a leaf node for both classification and regression=
+same formula for SS , just residual instead of residual^2
+
+log odds prediction=log odds of base estimator+ lr*(decision tree output)
+
+Maths for XGBOOST(Optional)
+
+Boosting is an additive modelling process
+
+y_pred=f1(xi)+f2(xi)+...
+
+We have to make ypred close to y
+
+but first gradient boosting loss fn:
+
+Gradient Booost->very flexible loss function
+denoted by L(yi,y_pred)
+
+XGboost loss:
+
+L=Gradient Boost loss+ regularization loss(only on the last tree)
+
+Regularization Loss=Ω(f)=gammae*(number of leaf nodes)+lambda*(leaf node value)
+
+penalize tree for making too many leaf nodes and assigning too  much weight to a leaf
+
+
+XGBoost Objective = Loss + Regularization
+
+L = Σ l(y_i, ŷ_i) + Ω(f)
+
+Ω(f) = γT + (λ/2)Σ(w_j²)
+
+Therefore:
+
+L = Σ l(y_i, ŷ_i) + γT + (λ/2)Σ(w_j²)
+
+t->stage t
+L^(t) = Σ l(y_i, ŷ_i^(t-1) + f_t(x_i)) + Ω(f_t)
+y_i^(t-1)= pred at stage t-1
+
+Ω(f_t) = γT + (λ/2)Σ(w_j²)
+
+now if we want to find derivate of loss with then first things first u need to now that f_t(x_i_ is non differentiable ,since its just a decision tree ,and decision tree  decision boundaries are non differentiable.How can we smoothen it  , use Taylor Series expansion
+
+f(x)=l(y_i, ŷ_i^(t-1)+ f_t(x_i))
+
+  .... not imp ,just remember loss function can be expanded by taylor series to make it differentiable 
+
