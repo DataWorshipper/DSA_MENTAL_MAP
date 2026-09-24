@@ -1,1 +1,42 @@
+Four OOPS concepts:
 
+1) Polymorphism
+2) Encapsulation
+3) Abstraction
+4) Inheritance(Reusability)
+
+# INHERITANCE # 
+
+Java allows single level , multi - level and hierarchical inheritance .
+
+Java does not allow  multiple inheritance(a single class can not have two base classes)
+
+class A {
+  int a ; 
+  void ab(){
+  SOPln("ab")
+  }
+  void cd(){
+  SOPln("cd")
+  }
+}
+class B extends A {
+
+  @Override
+  void ab(){
+   SOPln("derived_ab")
+  }
+  
+
+B obj = new B();
+
+obj.ab() // will print derived_ab
+obj.cd() // will print cd ( allowed the derived class inherits all funtions from the base class)
+
+
+
+
+
+
+
+ 
