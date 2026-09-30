@@ -193,3 +193,116 @@ int main() {
     return 0;
 } example of function  overrideing 
 output will be Derived Class Function
+
+
+FEW GOTCHAS
+
+#include <iostream>
+using namespace std;
+
+class RewardMember {
+public:
+    RewardMember()  { cout << "1. RewardMember constructed\n"; }
+    ~RewardMember() { cout << "6. RewardMember destructed\n"; }
+};
+
+class SavingsAccount {
+public:
+    SavingsAccount()  { cout << "2. SavingsAccount constructed\n"; }
+    ~SavingsAccount() { cout << "5. SavingsAccount destructed\n"; }
+};
+
+// ⚠️ KEY RULE: Base classes are initialized in the order of their DECLARATION here:
+// 1st: RewardMember, 2nd: SavingsAccount
+class PremiumSavingsAccount : public RewardMember, public SavingsAccount {
+public:
+    // Even though SavingsAccount is written first in this list, 
+    // the compiler IGNORES this ordering!
+    PremiumSavingsAccount() : SavingsAccount(), RewardMember() {
+        cout << "3. PremiumSavingsAccount constructed\n";
+    }
+
+    ~PremiumSavingsAccount() {
+        cout << "4. PremiumSavingsAccount destructed\n";
+    }
+};
+
+int main() {
+    {
+        cout << "--- Object Creation ---\n";
+        PremiumSavingsAccount p;
+
+        cout << "\n--- Scope Exit (Destruction) ---\n";
+    } // Object goes out of scope here
+    return 0;
+}
+
+--- Object Creation ---
+1. RewardMember constructed
+2. SavingsAccount constructed
+3. PremiumSavingsAccount constructed
+
+--- Scope Exit (Destruction) ---
+4. PremiumSavingsAccount destructed
+5. SavingsAccount destructed
+6. RewardMember destructed
+
+
+Also one more thing , what makes function overriding runtime polymorphism 
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Base Class
+class Account {
+public:
+    // virtual keyword enables runtime dynamic dispatch
+    virtual void calculateInterest() const {
+        cout << "Base Account: 0% standard interest.\n";
+    }
+
+    // Crucial: Base destructor must be virtual when deleting via Base*
+    virtual ~Account() {}
+};
+
+// Derived Class 1
+class SavingsAccount : public Account {
+public:
+    // Overriding the base function
+    void calculateInterest() const override {
+        cout << "Savings Account: 4.5% compound interest calculated.\n";
+    }
+};
+
+// Derived Class 2
+class CurrentAccount : public Account {
+public:
+    // Overriding the base function
+    void calculateInterest() const override {
+        cout << "Current Account: 0% interest with overdraft facility.\n";
+    }
+};
+
+int main() {
+    // RUNTIME POLYMORPHISM IN ACTION:
+    // A single Base pointer type (Account*) points to different concrete objects at runtime.
+
+    Account* acc1 = new SavingsAccount();
+    Account* acc2 = new CurrentAccount();
+
+    // The compiler does not know what type acc1/acc2 point to until execution:
+    acc1->calculateInterest(); // Resolves at runtime to SavingsAccount::calculateInterest()
+    acc2->calculateInterest(); // Resolves at runtime to CurrentAccount::calculateInterest()
+
+    // Real-world usage: Heterogeneous collection
+    cout << "\n--- Processing a batch of accounts polymorphically ---\n";
+    vector<Account*> accounts = { acc1, acc2 };
+    for (Account* acc : accounts) {
+        acc->calculateInterest(); // Calls the correct child method for every element automatically!
+    }
+
+    delete acc1;
+    delete acc2;
+    return 0;
+} consider this example ,  so Account* acc1=new SavingsAccount();  acc1->calculateInterest(); if there was no  virtual , then based on pointer type it wud  have binded itself to Account's  function but it sees that there is a  virtua keyword so it will now look at the type of object being created and then  invoke the func accordingly
