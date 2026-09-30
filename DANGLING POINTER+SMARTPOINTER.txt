@@ -1,0 +1,47 @@
+DANGLING POINTER
+
+Basic idea is that a pointer stores the address of an object/variable but say the memory was freed(or deleted) the pointer variable shall still store the  address location but if u dereference it, it will result in a crash ,or worse , say u have  done some more operation and say some sensitive data stays in that memory location , then that shall be accessed , and hence  its a very sneaky thing
+
+#include <iostream>
+using namespace std;
+
+int main() {
+
+    int* ptr = new int(20);
+
+    delete ptr;
+
+    cout << *ptr;
+
+    return 0;
+}
+
+in the example below , while returning the value variable is in the scope of the function , so it goes out of scope while returning so yeah
+
+#include <iostream>
+using namespace std;
+
+int* getPointer() {
+
+    int value = 50;
+
+    return &value;
+}
+
+int main() {
+
+    int* ptr = getPointer();
+
+    cout << *ptr;
+
+    return 0;
+}
+
+How to fix a dangling ptr 
+assign that ptr to a nullptr after deleting ,system will crash but u shall know the reason that u tried to access the ptr after it has been deleted
+
+Solution 
+SMART POINTERS
+
+basic pointers are smart enuff-> they can do automatic memory management ,say for example ,  a pointer is pointing at an address , at the end of function the pointer variable goes out of scope  so smart pointer will basically automatically remove it, unique_ptr ,basically evry ptr can point to an unique location only , u can transfer ownership using move command , shared ptr , multiple ptrs can point to same address , the ptr maintains a reference count
+
